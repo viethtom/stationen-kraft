@@ -831,6 +831,14 @@ function switchTab(id) {
   STATIONS.tab5 = { obj: AlltagStation() };
   document.querySelectorAll('.tab').forEach((t) => { t.onclick = () => switchTab(t.dataset.tab); if (S.done[t.dataset.tab]) t.classList.add('done'); });
   document.querySelectorAll('[data-goto]').forEach((b) => { b.onclick = () => switchTab(b.dataset.goto); });
+  // Impressum / Datenschutz
+  const openLegal = id => { const d = $(id); if (d && !d.open) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); } };
+  document.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); openLegal(a.dataset.legal); });
+  document.querySelectorAll('dialog.legal-dlg').forEach(d => {
+    d.querySelector('[data-close]').onclick = () => d.close ? d.close() : d.removeAttribute('open');
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+  });
+  if (location.hash === '#impressum' || location.hash === '#datenschutz') openLegal(location.hash.slice(1));
   $('reset-all').onclick = () => { if (confirm('Wirklich den gesamten Fortschritt (alle Messwerte und Antworten) löschen?')) { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); } };
   switchTab(STATIONS[S.tab] ? S.tab : 'tab1');
 })();

@@ -231,6 +231,18 @@ footer{background:#0f172a;color:#94a3b8;text-align:center;font-size:13px;padding
 footer p{margin:4px 0}
 footer button{margin-top:10px;background:transparent;border:1px solid #334155;color:#cbd5e1;border-radius:10px;padding:8px 14px;min-height:40px}
 
+footer .legal{margin-top:12px}
+footer .legal a{color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;margin:0 8px;font-size:14px}
+dialog.legal-dlg{border:0;border-radius:var(--radius);padding:0;width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 48px);box-shadow:0 20px 60px rgba(15,23,42,.35);color:var(--ink)}
+dialog.legal-dlg::backdrop{background:rgba(15,23,42,.55)}
+.legal-dlg .lh{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.legal-dlg .lh h2{margin:0;font-size:20px}
+.legal-dlg .lh button{border:1px solid var(--line);background:var(--soft);border-radius:10px;min-height:40px;padding:6px 14px;font-size:15px}
+.legal-dlg .lb{padding:4px 20px 20px;font-size:15px;line-height:1.55;color:var(--ink2)}
+.legal-dlg .lb h3{font-size:16px;color:var(--ink);margin:18px 0 6px}
+.legal-dlg .lb p,.legal-dlg .lb ul{margin:6px 0}
+.legal-dlg .lb a{color:var(--indigo);word-break:break-word}
+
 /* station accents */
 #tab1{--accent:var(--indigo);--accent-l:var(--indigo-l)}
 #tab2{--accent:var(--emerald);--accent-l:var(--emerald-l)}
@@ -593,7 +605,45 @@ footer button{margin-top:10px;background:transparent;border:1px solid #334155;co
   <p>Interaktives Physik-Lernportal · Stationenlernen Kraft &amp; Hebel · Klasse 8</p>
   <p>Funktioniert offline – alle Inhalte stecken in dieser einen Datei. Fortschritt wird auf diesem Gerät gespeichert.</p>
   <button id="reset-all">Fortschritt zurücksetzen</button>
+  <p class="legal"><a href="#impressum" data-legal="impressum">Impressum</a> · <a href="#datenschutz" data-legal="datenschutz">Datenschutz</a></p>
 </footer>
+
+<dialog class="legal-dlg" id="impressum" aria-labelledby="impressum-h">
+  <div class="lh"><h2 id="impressum-h">Impressum</h2><button type="button" data-close>Schließen</button></div>
+  <div class="lb">
+    <h3>Angaben gemäß § 5 DDG</h3>
+    <p>Thomas Vieth<br>Kaiserin-Augusta-Schule Köln<br>Georgsplatz 10<br>50679 Köln</p>
+    <h3>Kontakt</h3>
+    <p>E-Mail: <a href="mailto:t.vieth@kas.schule.koeln">t.vieth@kas.schule.koeln</a></p>
+    <h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+    <p>Thomas Vieth, Anschrift wie oben</p>
+    <h3>Haftung für Inhalte</h3>
+    <p>Die Inhalte dieser Lernseite wurden mit größter Sorgfalt für den Physikunterricht erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden. Hinweise auf Fehler nehme ich gern per E-Mail entgegen.</p>
+    <h3>Urheberrecht und verwendete Software</h3>
+    <p>Texte, Aufgaben und Abbildungen dieser Seite dürfen für den Unterricht frei genutzt werden. Die 3D-Darstellung verwendet die Bibliothek three.js (© three.js authors, MIT-Lizenz), die in diese Datei eingebettet ist.</p>
+  </div>
+</dialog>
+
+<dialog class="legal-dlg" id="datenschutz" aria-labelledby="datenschutz-h">
+  <div class="lh"><h2 id="datenschutz-h">Datenschutzerklärung</h2><button type="button" data-close>Schließen</button></div>
+  <div class="lb">
+    <h3>1. Verantwortlicher</h3>
+    <p>Thomas Vieth, Kaiserin-Augusta-Schule Köln, Georgsplatz 10, 50679 Köln<br>E-Mail: <a href="mailto:t.vieth@kas.schule.koeln">t.vieth@kas.schule.koeln</a></p>
+    <h3>2. Das Wichtigste in Kürze</h3>
+    <p>Diese Lernseite erhebt selbst keine personenbezogenen Daten. Es gibt keine Anmeldung, keine Cookies, kein Tracking und keine Analysedienste. Es werden keine Inhalte von fremden Servern nachgeladen (keine externen Schriften, Skripte oder Bilder). Alles, was die Seite braucht, steckt in dieser einen Datei.</p>
+    <h3>3. Speicherung des Lernfortschritts auf dem eigenen Gerät</h3>
+    <p>Damit Messwerte und Antworten beim nächsten Öffnen noch da sind, speichert die Seite den Lernfortschritt im lokalen Speicher des Browsers (localStorage, Schlüssel „kraft-hebel-3d-v1“). Diese Daten bleiben ausschließlich auf dem verwendeten Gerät und werden nicht übertragen; weder ich noch Dritte haben darauf Zugriff. Sie enthalten keine Namen oder sonstigen Angaben zur Person.</p>
+    <p>Die Speicherung ist für die gewünschte Funktion der Seite unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst die Daten jederzeit mit der Schaltfläche „Fortschritt zurücksetzen“ unten auf der Seite oder über die Einstellungen deines Browsers (Websitedaten löschen) entfernen.</p>
+    <h3>4. Hosting bei GitHub Pages</h3>
+    <p>Wird die Seite online aufgerufen, wird sie über GitHub Pages bereitgestellt. Anbieter ist die GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA. Beim Aufruf verarbeitet GitHub technisch notwendige Zugriffsdaten, insbesondere die IP-Adresse, Datum und Uhrzeit des Abrufs sowie Browser- und Geräteinformationen, um die Seite auszuliefern und die Sicherheit des Dienstes zu gewährleisten. Rechtsgrundlage ist das berechtigte Interesse an einer sicheren und zuverlässigen Bereitstellung der Lernseite (Art. 6 Abs. 1 lit. f DSGVO).</p>
+    <p>Dabei können Daten in die USA übermittelt werden. GitHub ist nach dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO). Weitere Informationen: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>.</p>
+    <p>Wird die Datei direkt auf dem Gerät geöffnet (offline), findet keinerlei Datenübertragung statt.</p>
+    <h3>5. Deine Rechte</h3>
+    <p>Du hast nach der DSGVO das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Wende dich dazu einfach an die oben genannte E-Mail-Adresse.</p>
+    <p>Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestraße 2–4, 40213 Düsseldorf.</p>
+    <p>Stand: Oktober 2026</p>
+  </div>
+</dialog>
 
 <script>
 /**
@@ -2720,6 +2770,14 @@ function switchTab(id) {
   STATIONS.tab5 = { obj: AlltagStation() };
   document.querySelectorAll('.tab').forEach((t) => { t.onclick = () => switchTab(t.dataset.tab); if (S.done[t.dataset.tab]) t.classList.add('done'); });
   document.querySelectorAll('[data-goto]').forEach((b) => { b.onclick = () => switchTab(b.dataset.goto); });
+  // Impressum / Datenschutz
+  const openLegal = id => { const d = $(id); if (d && !d.open) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); } };
+  document.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); openLegal(a.dataset.legal); });
+  document.querySelectorAll('dialog.legal-dlg').forEach(d => {
+    d.querySelector('[data-close]').onclick = () => d.close ? d.close() : d.removeAttribute('open');
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+  });
+  if (location.hash === '#impressum' || location.hash === '#datenschutz') openLegal(location.hash.slice(1));
   $('reset-all').onclick = () => { if (confirm('Wirklich den gesamten Fortschritt (alle Messwerte und Antworten) löschen?')) { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); } };
   switchTab(STATIONS[S.tab] ? S.tab : 'tab1');
 })();
