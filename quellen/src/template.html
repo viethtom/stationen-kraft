@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kraft &amp; Hebel">
+<meta name="format-detection" content="telephone=no">
+<title>Physik Klasse 8: Kraft &amp; Hebel in 3D</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#eef2f7; --card:#ffffff; --ink:#0f172a; --ink2:#334155; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
+  --indigo:#4f46e5; --indigo-l:#eef2ff; --emerald:#059669; --emerald-l:#ecfdf5; --orange:#ea580c; --orange-l:#fff7ed;
+  --cyan:#0891b2; --cyan-l:#ecfeff; --amber:#d97706; --amber-l:#fffbeb; --red:#dc2626; --red-l:#fef2f2; --blue:#2563eb; --blue-l:#eff6ff;
+  --accent: var(--indigo); --accent-l: var(--indigo-l);
+  --radius:18px; --shadow:0 1px 2px rgba(15,23,42,.06),0 6px 24px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+sub{font-size:.72em}
+.hidden{display:none!important}
+
+/* Header */
+.top{position:sticky;top:0;z-index:50;background:linear-gradient(110deg,#312e81 0%,#1e293b 70%);color:#fff;box-shadow:0 4px 18px rgba(15,23,42,.25);padding-top:env(safe-area-inset-top)}
+.top-in{max-width:1320px;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.brand-ico{width:44px;height:44px;border-radius:14px;background:linear-gradient(140deg,#6366f1,#22d3ee);display:grid;place-items:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
+.brand small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c7d2fe;font-weight:700}
+.brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.01em}
+.tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:rgba(15,23,42,.45);padding:5px;border-radius:16px;border:1px solid rgba(148,163,184,.25);max-width:100%}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:0;background:transparent;color:#cbd5e1;padding:8px 12px;border-radius:12px;font-size:14px;font-weight:600;min-height:44px;transition:background .2s,color .2s}
+.tab .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:rgba(148,163,184,.25);color:#e2e8f0}
+.tab.active{background:#fff;color:var(--ink)}
+.tab.active .n{background:var(--indigo);color:#fff}
+.tab.done .n{background:#10b981;color:#fff}
+.tab.done .n::after{content:"✓"}
+.tab.done .n span{display:none}
+
+main{max-width:1320px;margin:0 auto;padding:20px 16px 40px}
+.station{display:none;animation:fadeUp .35s ease}
+.station.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.station > * + *{margin-top:20px}
+
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(226,232,240,.8);padding:20px}
+.card h3{margin:0 0 12px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.card-head h3{margin:0}
+.intro{display:flex;gap:16px;align-items:flex-start}
+.intro h2{margin:0;font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-.01em}
+.intro p{margin:6px 0 0;color:var(--ink2)}
+.badge{flex:0 0 auto;display:inline-block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:5px 12px;border-radius:999px;background:var(--accent-l);color:var(--accent)}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:0;list-style:none}
+.steps li{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:6px 12px;font-size:14px;color:var(--ink2)}
+.steps b{color:var(--accent)}
+
+.grid-sim{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start}
+.grid-sim.wide{grid-template-columns:minmax(0,6fr) minmax(0,6fr)}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+@media (max-width:900px){.grid-sim,.grid-sim.wide{grid-template-columns:1fr}}
+
+/* 3D stage */
+.stage{position:relative;width:100%;height:clamp(340px,56vh,560px);border-radius:14px;overflow:hidden;background:linear-gradient(#e9eef6,#d9e1ec);border:1px solid var(--line)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+.stage .ov{position:absolute;pointer-events:none;z-index:2}
+.ov-tl{top:10px;left:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.ov-tr{top:10px;right:10px;display:flex;gap:6px;pointer-events:auto!important}
+.ov-bl{bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+.pill{background:rgba(255,255,255,.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(203,213,225,.9);border-radius:12px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.pill.ok{color:#047857;border-color:#6ee7b7;background:rgba(236,253,245,.95)}
+.pill.warn{color:#b45309;border-color:#fcd34d;background:rgba(255,251,235,.95)}
+.hint3d{font-size:12px;color:#475569;background:rgba(255,255,255,.75);padding:4px 10px;border-radius:999px;transition:opacity .6s}
+.icon-btn{pointer-events:auto;border:1px solid rgba(203,213,225,.9);background:rgba(255,255,255,.92);border-radius:12px;min-width:44px;height:44px;padding:0 10px;font-size:14px;font-weight:700;color:var(--ink2);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.icon-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:var(--muted);font-size:15px}
+
+/* Wasserwaage */
+.level{display:flex;align-items:center;gap:8px}
+.level .tube{position:relative;width:110px;height:22px;border-radius:12px;background:linear-gradient(#d9f99d,#a3e635);border:2px solid #65a30d;box-shadow:inset 0 2px 4px rgba(0,0,0,.15);overflow:hidden}
+.level .tube::before,.level .tube::after{content:"";position:absolute;top:2px;bottom:2px;width:2px;background:rgba(54,83,20,.55)}
+.level .tube::before{left:calc(50% - 13px)}
+.level .tube::after{left:calc(50% + 11px)}
+.level .bub{position:absolute;top:3px;width:22px;height:12px;border-radius:8px;background:radial-gradient(circle at 35% 35%,#fff,#ecfccb 60%,#d9f99d);box-shadow:0 0 0 1px rgba(101,163,13,.6);left:calc(50% - 11px);transition:left .12s linear}
+.level.bal .tube{border-color:#059669}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:10px 16px;min-height:48px;font-weight:700;font-size:15px;transition:transform .08s,background .2s,opacity .2s;background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(15,23,42,.12)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:#e2e8f0;color:var(--ink2);box-shadow:none}
+.btn.success{background:#059669}
+.btn.amber{background:#d97706}
+.btn:disabled{background:#e2e8f0!important;color:#94a3b8!important;box-shadow:none;cursor:not-allowed;transform:none}
+.btn.block{width:100%}
+.btn-row{display:flex;gap:10px}
+.btn-row > *{flex:1}
+.ctrl{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.status{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:10px 14px;text-align:center;font-size:15px}
+.status b{font-size:17px}
+.status .acc{color:var(--accent);font-weight:800}
+
+/* Sliders */
+.sl{display:block}
+.sl-top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:2px}
+.sl-top .v{font-variant-numeric:tabular-nums;background:var(--soft);border:1px solid var(--line);padding:1px 8px;border-radius:8px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:6px;background:linear-gradient(90deg,var(--c,#4f46e5) var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--c,#4f46e5);margin-top:-11px;box-shadow:0 2px 6px rgba(15,23,42,.25)}
+input[type=range]::-moz-range-track{height:8px;border-radius:6px;background:#e2e8f0}
+input[type=range]::-moz-range-progress{height:8px;border-radius:6px;background:var(--c,#4f46e5)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--c,#4f46e5)}
+.sl-pull{background:var(--indigo-l);border:1px solid #c7d2fe;border-radius:14px;padding:10px 12px}
+.fine{display:flex;gap:8px;align-items:center}
+.fine button{flex:0 0 auto;width:44px;height:44px;border-radius:12px;border:1px solid #c7d2fe;background:#fff;font-weight:800;font-size:22px;color:var(--indigo)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px}
+table.data{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+table.data th{background:var(--soft);text-align:left;padding:10px 12px;font-size:13px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data td{padding:10px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap}
+table.data tr:last-child td{border-bottom:0}
+table.data tr.new td{animation:rowIn .6s ease}
+@keyframes rowIn{from{background:#fef9c3}to{background:transparent}}
+table.data .empty td{color:#94a3b8;font-style:italic;text-align:center;white-space:normal}
+td.calc,th.calc{color:#047857!important;font-weight:800}
+.note{font-size:13px;color:var(--muted);margin:8px 0 0}
+.del{border:0;background:transparent;color:#94a3b8;font-size:18px;min-width:36px;min-height:36px;border-radius:10px}
+
+/* Graph */
+.graph-box{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;justify-content:center}
+.graph-box svg{width:100%;max-width:640px;height:auto;display:block}
+.locked-card{opacity:.55;transition:opacity .4s}
+.axis-chip{font-size:12px;font-weight:700;background:var(--accent-l);color:var(--accent);padding:4px 10px;border-radius:10px}
+.slope-ctrl{margin-top:12px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px}
+.slope-res{margin-top:10px;background:var(--accent-l);border-radius:12px;padding:10px;text-align:center;font-weight:700;color:var(--accent)}
+.slope-res .big{display:inline-block;background:#fff;border-radius:8px;padding:2px 8px;margin-left:4px}
+svg .fit{stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset 1.2s ease}
+svg .fit.on{stroke-dashoffset:0}
+svg .pt{transform-box:fill-box;transform-origin:center;animation:ptIn .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes ptIn{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* Questions */
+.qhead{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:6px}
+.qhead h3{margin:0}
+.qprog{margin-left:auto;font-size:13px;font-weight:700;color:var(--muted);background:var(--soft);border:1px solid var(--line);padding:4px 10px;border-radius:999px}
+.q{border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px;background:#fff;animation:fadeUp .4s ease}
+.q.solved{border-color:#a7f3d0;background:linear-gradient(#f0fdf4,#fff 60%)}
+.q-title{display:flex;gap:10px;align-items:flex-start}
+.q-n{flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--accent-l);color:var(--accent)}
+.q.solved .q-n{background:#10b981;color:#fff}
+.q-text{font-weight:600;color:var(--ink)}
+.q-text p{margin:0 0 6px}
+.q-text .sub{font-weight:400;color:var(--ink2);font-size:15px}
+.q-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.q-fig{margin:12px 0 0;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;justify-content:center}
+.q-fig svg{max-width:420px;width:100%;height:auto}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.opt{text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;min-height:52px;font-size:15px;font-weight:600;color:var(--ink2);transition:border-color .2s,background .2s}
+.opt:active{background:var(--soft)}
+.opt.ok{border-color:#10b981;background:#ecfdf5;color:#065f46}
+.opt.bad{border-color:#f87171;background:#fef2f2;color:#991b1b;animation:shake .35s}
+.opt:disabled{cursor:default}
+.q.solved .opt:not(.ok){opacity:.55}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ans-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:stretch}
+.ans-row .pre{display:flex;align-items:center;font-weight:800;background:var(--accent-l);color:var(--accent);padding:0 12px;border-radius:12px;min-height:48px}
+.ans-row input{flex:1 1 140px;min-width:120px;min-height:48px;border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-size:18px;font-weight:600;background:#fff;-webkit-appearance:none}
+.ans-row input:focus{outline:none;border-color:var(--accent)}
+.ans-row .unit{display:flex;align-items:center;font-weight:700;color:var(--muted);padding:0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{min-width:48px;min-height:44px;border:1px solid #cbd5e1;background:#fff;border-radius:12px;font-weight:800;font-size:17px;padding:0 12px;color:var(--ink);box-shadow:0 1px 0 #cbd5e1}
+.chip:active{background:var(--accent-l)}
+.chip.op{background:#f1f5f9;color:var(--accent)}
+.chip.del{color:var(--red);background:#fff}
+.fb{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:15px;animation:fadeUp .3s}
+.fb.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.fb.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.fb.hint{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.fb.sol{background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe}
+.q-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mini{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;min-height:40px;font-size:14px;font-weight:700;color:var(--ink2)}
+.pop{animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+/* Merke & Definition */
+.merke{border-radius:var(--radius);padding:20px;background:linear-gradient(135deg,#ecfdf5,#eef2ff);border:1px solid #a7f3d0;animation:fadeUp .5s}
+.merke h3{margin:0 0 8px;font-size:18px}
+.merke .law{display:block;text-align:center;font-size:22px;font-weight:800;color:#065f46;background:#fff;border-radius:14px;padding:12px;margin:10px 0;border:1px solid #a7f3d0}
+.merke p{margin:6px 0;color:var(--ink2)}
+.merke .next{margin-top:12px;display:flex;justify-content:flex-end}
+
+/* Torque bars */
+.tq{min-width:190px}
+.tq-row{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-top:3px}
+.tq-row span:first-child{width:46px}
+.tq-bar{flex:1;height:10px;background:#e2e8f0;border-radius:6px;overflow:hidden}
+.tq-bar i{display:block;height:100%;border-radius:6px;transition:width .15s}
+
+/* Alltag */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;min-height:40px;font-weight:700;font-size:14px;color:var(--ink2)}
+.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}
+.tile{position:relative;text-align:left;border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 12px;min-height:76px;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,transform .1s}
+.tile:active{transform:scale(.98)}
+.tile .em{font-size:26px;line-height:1}
+.tile .tt{font-weight:800;font-size:14px;line-height:1.2;color:var(--ink)}
+.tile .cat{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.tile.on{border-color:var(--amber);box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+.tile.solved::after{content:"✓";position:absolute;top:8px;right:10px;width:24px;height:24px;border-radius:50%;background:#10b981;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+.progress{height:10px;background:#e2e8f0;border-radius:6px;overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#10b981);transition:width .5s}
+.given{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0;padding:0;list-style:none}
+.given li{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:14px}
+.given li b{color:var(--ink)}
+.story{color:var(--ink2);margin:8px 0 0}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;font-weight:700;color:var(--ink2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.typetag{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--amber-l);color:#92400e;border:1px solid #fde68a}
+.congrats{border-radius:var(--radius);padding:28px;text-align:center;color:#fff;background:linear-gradient(120deg,#059669,#4f46e5);box-shadow:var(--shadow);animation:fadeUp .6s}
+.congrats h3{margin:0;font-size:26px}
+.congrats p{margin:8px auto 0;max-width:640px;color:#d1fae5}
+
+footer{background:#0f172a;color:#94a3b8;text-align:center;font-size:13px;padding:24px 16px calc(24px + env(safe-area-inset-bottom))}
+footer p{margin:4px 0}
+footer button{margin-top:10px;background:transparent;border:1px solid #334155;color:#cbd5e1;border-radius:10px;padding:8px 14px;min-height:40px}
+
+/* station accents */
+#tab1{--accent:var(--indigo);--accent-l:var(--indigo-l)}
+#tab2{--accent:var(--emerald);--accent-l:var(--emerald-l)}
+#tab3{--accent:var(--orange);--accent-l:var(--orange-l)}
+#tab4{--accent:var(--cyan);--accent-l:var(--cyan-l)}
+#tab5{--accent:var(--amber);--accent-l:var(--amber-l)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="brand-ico" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17 L24 11"/><path d="M13 14 L9 23 L17 23 Z" fill="#fff"/><path d="M5 4 v6 M3 6 l2-2 2 2"/></svg>
+      </div>
+      <div>
+        <small>Physik Klasse 8 · Stationenlernen</small>
+        <h1>Kraft &amp; Hebel in 3D</h1>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-tab="tab1"><span class="n"><span>1</span></span>Hooke: Ausdehnung</button>
+      <button class="tab" data-tab="tab2"><span class="n"><span>2</span></span>Hooke: Gesamtlänge</button>
+      <button class="tab" data-tab="tab3"><span class="n"><span>3</span></span>Einseitiger Hebel</button>
+      <button class="tab" data-tab="tab4"><span class="n"><span>4</span></span>Zweiseitiger Hebel</button>
+      <button class="tab" data-tab="tab5"><span class="n"><span>5</span></span>Alltags-Check</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= STATION 1 ================= -->
+<section class="station" id="tab1">
+  <div class="card intro">
+    <span class="badge">Station 1</span>
+    <div>
+      <h2>Das Hookesche Gesetz – Variante A: Ausdehnung <i>s</i></h2>
+      <p>In der letzten Stunde habt ihr mit einer Schraubenfeder experimentiert. Eine Gruppe hat gemessen, <b>um wie viele Zentimeter sich die Feder verlängert</b> (Ausdehnung <i>s</i>), wenn man Gewichtsstücke anhängt. Hier führst du das Experiment virtuell durch. Der Nullpunkt des Lineals liegt dort, wo das Federende <b>ohne Last</b> hängt.</p>
+      <ul class="steps">
+        <li><b>1.</b> Gewichtsstück anhängen</li>
+        <li><b>2.</b> Warten, bis die Feder ruhig hängt</li>
+        <li><b>3.</b> Messwert speichern</li>
+        <li><b>4.</b> Mindestens 3 Messungen, dann auswerten</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-sim">
+    <div class="card">
+      <div class="card-head">
+        <h3>Messplatz in 3D</h3>
+      </div>
+      <div class="stage" id="stage1">
+        <div class="ov ov-tl"><span class="pill" id="s1-live">s = 0,0 cm</span><span class="pill ok" id="s1-calm">in Ruhe ✓</span></div>
+        <div class="ov ov-tr"><button class="icon-btn" id="s1-read" title="Ablese-Ansicht">🔍 Ablesen</button><button class="icon-btn" data-reset="1" title="Ansicht zurücksetzen">↺</button></div>
+        <div class="ov ov-bl"><span class="hint3d">☝️ Drehen mit einem Finger · 🤏 Zoomen mit zwei Fingern</span></div>
+      </div>
+      <div class="ctrl">
+        <div class="btn-row">
+          <button class="btn" id="s1-add">＋ 50 g anhängen</button>
+          <button class="btn ghost" id="s1-rem">－ Abnehmen</button>
+        </div>
+        <div class="status">
+          <div><b id="s1-n">0</b> Gewichtsstücke · Masse <b id="s1-m">0 g</b> · Kraft <b id="s1-f">0,0 N</b></div>
+          <div class="acc">Ausdehnung s = <span id="s1-s">0</span> cm</div>
+        </div>
+        <button class="btn success block" id="s1-save">💾 Messwert speichern</button>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <h3>Messwerttabelle (Ausdehnung)</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Anzahl</th><th>Masse <i>m</i></th><th>Kraft <i>F</i></th><th style="color:var(--indigo)">Ausdehnung <i>s</i></th><th class="calc hidden" id="s1-colq">Faktor <i>s</i>/<i>F</i></th><th></th></tr></thead>
+            <tbody id="s1-tbody"></tbody>
+          </table>
+        </div>
+        <p class="note">Rechenhilfe: Ortsfaktor <i>g</i> ≈ 10 N/kg, also 50 g = 0,05 kg → 0,5 N.</p>
+      </div>
+      <div class="card locked-card" id="s1-graphcard">
+        <div class="card-head">
+          <h3>Diagramm &amp; Steigungsdreieck</h3>
+          <span class="axis-chip">x: Kraft <i>F</i> · y: Ausdehnung <i>s</i></span>
+        </div>
+        <p class="note" id="s1-graphnote" style="margin-top:0">Speichere mindestens 3 Messwerte, um die Ausgleichsgerade freizuschalten.</p>
+        <div class="graph-box"><svg id="graph1" viewBox="0 0 520 360"></svg></div>
+        <div class="slope-ctrl hidden" id="s1-slope">
+          <div class="grid2">
+            <label class="sl"><div class="sl-top"><span>Startpunkt <i>F</i><sub>1</sub></span><span class="v" id="s1-p1v">0,5 N</span></div><input type="range" id="s1-p1" min="0" max="2" step="0.5" value="0.5"></label>
+            <label class="sl"><div class="sl-top"><span>Endpunkt <i>F</i><sub>2</sub></span><span class="v" id="s1-p2v">2,0 N</span></div><input type="range" id="s1-p2" min="0.5" max="2.5" step="0.5" value="2"></label>
+          </div>
+          <div class="slope-res">Steigung = Δs / ΔF = <span id="s1-ratio"></span> = <span class="big" id="s1-slopev"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="s1-q"></div>
+  <div class="merke hidden" id="s1-merke">
+    <h3>📌 Merke: Das Hookesche Gesetz</h3>
+    <p>Die Ausdehnung <i>s</i> einer Feder ist proportional zur angreifenden Kraft <i>F</i> – solange die Feder nicht überdehnt wird.</p>
+    <span class="law">F = D · s</span>
+    <p><b>D</b> heißt Federkonstante (Einheit N/cm oder N/m). Je größer D, desto härter die Feder. Unsere Feder: D = 0,1 N/cm.</p>
+    <div class="next"><button class="btn" data-goto="tab2">Weiter zu Station 2 →</button></div>
+  </div>
+</section>
+
+<!-- ================= STATION 2 ================= -->
+<section class="station" id="tab2">
+  <div class="card intro">
+    <span class="badge">Station 2</span>
+    <div>
+      <h2>Das Hookesche Gesetz – Variante B: Gesamtlänge <i>L</i></h2>
+      <p>Die zweite Gruppe hat nicht die Verlängerung, sondern immer die <b>Gesamtlänge</b> <i>L</i> der Feder gemessen – vom Aufhängepunkt bis zum Federende. Das Lineal beginnt deshalb <b>am Aufhängepunkt</b>. Vergleiche die Ergebnisse mit Station 1!</p>
+      <ul class="steps">
+        <li><b>1.</b> Gewichtsstück anhängen</li>
+        <li><b>2.</b> Gesamtlänge ablesen</li>
+        <li><b>3.</b> Messwert speichern (mind. 3)</li>
+        <li><b>4.</b> Diagramm mit Station 1 vergleichen</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-sim">
+    <div class="card">
+      <div class="card-head"><h3>Messplatz in 3D</h3></div>
+      <div class="stage" id="stage2">
+        <div class="ov ov-tl"><span class="pill" id="s2-live">L = 10,0 cm</span><span class="pill ok" id="s2-calm">in Ruhe ✓</span></div>
+        <div class="ov ov-tr"><button class="icon-btn" id="s2-read">🔍 Ablesen</button><button class="icon-btn" data-reset="2">↺</button></div>
+        <div class="ov ov-bl"><span class="hint3d">☝️ Drehen mit einem Finger · 🤏 Zoomen mit zwei Fingern</span></div>
+      </div>
+      <div class="ctrl">
+        <div class="btn-row">
+          <button class="btn" id="s2-add">＋ 50 g anhängen</button>
+          <button class="btn ghost" id="s2-rem">－ Abnehmen</button>
+        </div>
+        <div class="status">
+          <div><b id="s2-n">0</b> Gewichtsstücke · Kraft <b id="s2-f">0,0 N</b></div>
+          <div class="acc">Gesamtlänge L = <span id="s2-s">10</span> cm</div>
+        </div>
+        <button class="btn success block" id="s2-save">💾 Messwert speichern</button>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Messwerttabelle (Gesamtlänge)</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Anzahl</th><th>Kraft <i>F</i></th><th style="color:var(--emerald)">Gesamtlänge <i>L</i></th><th class="calc hidden" id="s2-colq">s = L − L<sub>0</sub></th><th></th></tr></thead>
+            <tbody id="s2-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card locked-card" id="s2-graphcard">
+        <div class="card-head">
+          <h3>Diagramm (Gesamtlänge)</h3>
+          <span class="axis-chip">x: Kraft <i>F</i> · y: Gesamtlänge <i>L</i></span>
+        </div>
+        <p class="note" id="s2-graphnote" style="margin-top:0">Speichere mindestens 3 Messwerte, um Diagramm und Steigungsdreieck freizuschalten.</p>
+        <div class="graph-box"><svg id="graph2" viewBox="0 0 520 360"></svg></div>
+        <div class="slope-ctrl hidden" id="s2-slope">
+          <div class="grid2">
+            <label class="sl"><div class="sl-top"><span>Startpunkt <i>F</i><sub>1</sub></span><span class="v" id="s2-p1v">0,5 N</span></div><input type="range" id="s2-p1" min="0" max="2" step="0.5" value="0.5"></label>
+            <label class="sl"><div class="sl-top"><span>Endpunkt <i>F</i><sub>2</sub></span><span class="v" id="s2-p2v">2,0 N</span></div><input type="range" id="s2-p2" min="0.5" max="2.5" step="0.5" value="2"></label>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:600;font-size:14px;color:var(--ink2)"><input type="checkbox" id="s2-compare" style="width:22px;height:22px"> Gerade aus Station 1 zum Vergleich einblenden</label>
+          <div class="slope-res">Steigung = ΔL / ΔF = <span id="s2-ratio"></span> = <span class="big" id="s2-slopev"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="s2-q"></div>
+  <div class="merke hidden" id="s2-merke">
+    <h3>📌 Merke: Gesamtlänge einer Feder</h3>
+    <p>Die Gesamtlänge setzt sich aus der Ausgangslänge <i>L</i><sub>0</sub> und der Ausdehnung <i>s</i> zusammen. Der Graph ist eine Gerade, aber <b>keine Ursprungsgerade</b>.</p>
+    <span class="law">L = L<sub>0</sub> + s = L<sub>0</sub> + F / D</span>
+    <p>Die Steigung (Dehnbarkeit) hängt nur von der Feder ab – nicht davon, ob man <i>s</i> oder <i>L</i> misst.</p>
+    <div class="next"><button class="btn" data-goto="tab3">Weiter zu Station 3 →</button></div>
+  </div>
+</section>
+
+<!-- ================= STATION 3 ================= -->
+<section class="station" id="tab3">
+  <div class="card intro">
+    <span class="badge">Station 3</span>
+    <div>
+      <h2>Der einseitige Hebel</h2>
+      <p>Beim einseitigen Hebel greifen alle Kräfte auf <b>derselben Seite</b> des Drehpunkts an – wie bei der Schubkarre oder dem Flaschenöffner. Der Drehpunkt liegt ganz links. Die Last zieht nach unten, du ziehst mit einem <b>Kraftmesser</b> nach oben. Bringe den Hebel ins Gleichgewicht!</p>
+      <ul class="steps">
+        <li><b>1.</b> Last und Abstände einstellen</li>
+        <li><b>2.</b> Zugkraft F<sub>Z</sub> so wählen, dass die Wasserwaage mittig ist</li>
+        <li><b>3.</b> 3 verschiedene Gleichgewichte speichern</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-sim wide">
+    <div class="card">
+      <div class="card-head"><h3>Hebel-Simulator in 3D</h3></div>
+      <div class="stage" id="stage3">
+        <div class="ov ov-tl">
+          <div class="pill level" id="s3-level"><span style="font-size:12px">Wasserwaage</span><div class="tube"><div class="bub" id="s3-bub"></div></div></div>
+          <div class="pill tq hidden" id="s3-tq">
+            <div style="font-size:12px">Drehwirkung F · a</div>
+            <div class="tq-row"><span style="color:var(--orange)">Last</span><div class="tq-bar"><i id="s3-tql" style="background:#f97316"></i></div><span id="s3-tqlv"></span></div>
+            <div class="tq-row"><span style="color:var(--blue)">Zug</span><div class="tq-bar"><i id="s3-tqz" style="background:#3b82f6"></i></div><span id="s3-tqzv"></span></div>
+          </div>
+        </div>
+        <div class="ov ov-tr"><button class="icon-btn" data-reset="3">↺</button></div>
+        <div class="ov ov-bl"><span class="hint3d">☝️ Drehen · 🤏 Zoomen</span></div>
+      </div>
+      <div class="ctrl">
+        <div class="grid2">
+          <label class="sl"><div class="sl-top"><span style="color:var(--orange)">Lastkraft F<sub>L</sub></span><span class="v" id="s3-flv"></span></div><input type="range" id="s3-fl" min="1" max="5" step="0.5" value="2" style="--c:#f97316"></label>
+          <label class="sl"><div class="sl-top"><span style="color:var(--orange)">Lastarm a<sub>L</sub></span><span class="v" id="s3-alv"></span></div><input type="range" id="s3-al" min="10" max="70" step="10" value="40" style="--c:#f97316"></label>
+        </div>
+        <label class="sl"><div class="sl-top"><span style="color:var(--blue)">Kraftarm a<sub>Z</sub> (Abstand des Kraftmessers)</span><span class="v" id="s3-azv"></span></div><input type="range" id="s3-az" min="20" max="100" step="10" value="80" style="--c:#3b82f6"></label>
+        <label class="sl sl-pull"><div class="sl-top"><span style="color:var(--indigo)">Zugkraft F<sub>Z</sub> am Kraftmesser</span><span class="v" id="s3-fzv"></span></div><input type="range" id="s3-fz" min="0.2" max="6" step="0.05" value="1.4" style="--c:#4f46e5"></label>
+        <button class="btn block" id="s3-save" disabled>Hebel ausbalancieren zum Speichern</button>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Messwerttabelle (einseitiger Hebel)</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th style="color:var(--orange)">F<sub>L</sub></th><th style="color:var(--orange)">a<sub>L</sub></th><th style="color:var(--blue)">F<sub>Z</sub></th><th style="color:var(--blue)">a<sub>Z</sub></th><th class="calc hidden s3-calc">F<sub>L</sub> · a<sub>L</sub></th><th class="calc hidden s3-calc">F<sub>Z</sub> · a<sub>Z</sub></th><th></th></tr></thead>
+            <tbody id="s3-tbody"></tbody>
+          </table>
+        </div>
+        <p class="note">Tipp: Variiere bei jeder Messung etwas anderes – mal die Last, mal einen Abstand.</p>
+      </div>
+      <div class="card hidden" id="s3-q"></div>
+    </div>
+  </div>
+  <div class="merke hidden" id="s3-merke">
+    <h3>📌 Merke: Gleichgewicht am einseitigen Hebel</h3>
+    <span class="law">F<sub>L</sub> · a<sub>L</sub> = F<sub>Z</sub> · a<sub>Z</sub></span>
+    <p>Ist der Kraftarm länger als der Lastarm, brauchst du weniger Kraft als die Last – dafür ist dein Weg entsprechend länger (<b>Goldene Regel der Mechanik</b>).</p>
+    <div class="next"><button class="btn" data-goto="tab4">Weiter zu Station 4 →</button></div>
+  </div>
+</section>
+
+<!-- ================= STATION 4 ================= -->
+<section class="station" id="tab4">
+  <div class="card intro">
+    <span class="badge">Station 4</span>
+    <div>
+      <h2>Der zweiseitige Hebel – entdecke die Gleichgewichtsbedingung</h2>
+      <p>Beim zweiseitigen Hebel liegt der Drehpunkt <b>zwischen</b> den Kräften – wie bei einer Balkenwaage oder einer Wippe. Hänge links und rechts Gewichte an und finde heraus, nach welcher Regel der Balken im Gleichgewicht ist.</p>
+      <ul class="steps">
+        <li><b>1.</b> Kräfte und Abstände einstellen</li>
+        <li><b>2.</b> Gleichgewicht finden</li>
+        <li><b>3.</b> 3 verschiedene Gleichgewichte speichern</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-sim wide">
+    <div class="card">
+      <div class="card-head"><h3>Balkenwaage in 3D</h3></div>
+      <div class="stage" id="stage4">
+        <div class="ov ov-tl">
+          <div class="pill level" id="s4-level"><span style="font-size:12px">Wasserwaage</span><div class="tube"><div class="bub" id="s4-bub"></div></div></div>
+          <div class="pill tq hidden" id="s4-tq">
+            <div style="font-size:12px">Drehmoment M = F · r</div>
+            <div class="tq-row"><span style="color:var(--orange)">links</span><div class="tq-bar"><i id="s4-tql" style="background:#f97316"></i></div><span id="s4-tqlv"></span></div>
+            <div class="tq-row"><span style="color:var(--cyan)">rechts</span><div class="tq-bar"><i id="s4-tqr" style="background:#06b6d4"></i></div><span id="s4-tqrv"></span></div>
+          </div>
+        </div>
+        <div class="ov ov-tr"><button class="icon-btn" data-reset="4">↺</button></div>
+        <div class="ov ov-bl"><span class="hint3d">☝️ Drehen · 🤏 Zoomen</span></div>
+      </div>
+      <div class="ctrl">
+        <div class="grid2">
+          <label class="sl"><div class="sl-top"><span style="color:var(--orange)">Kraft links F<sub>1</sub></span><span class="v" id="s4-f1v"></span></div><input type="range" id="s4-f1" min="1" max="6" step="1" value="3" style="--c:#f97316"></label>
+          <label class="sl"><div class="sl-top"><span style="color:var(--orange)">Arm links r<sub>1</sub></span><span class="v" id="s4-r1v"></span></div><input type="range" id="s4-r1" min="10" max="50" step="10" value="20" style="--c:#f97316"></label>
+          <label class="sl"><div class="sl-top"><span style="color:var(--cyan)">Kraft rechts F<sub>2</sub></span><span class="v" id="s4-f2v"></span></div><input type="range" id="s4-f2" min="0.5" max="6" step="0.5" value="1.5" style="--c:#06b6d4"></label>
+          <label class="sl"><div class="sl-top"><span style="color:var(--cyan)">Arm rechts r<sub>2</sub></span><span class="v" id="s4-r2v"></span></div><input type="range" id="s4-r2" min="10" max="50" step="10" value="20" style="--c:#06b6d4"></label>
+        </div>
+        <button class="btn block" id="s4-save" disabled>Hebel ausbalancieren zum Speichern</button>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Messwerttabelle (zweiseitiger Hebel)</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th style="color:var(--orange)">F<sub>1</sub></th><th style="color:var(--orange)">r<sub>1</sub></th><th style="color:var(--cyan)">F<sub>2</sub></th><th style="color:var(--cyan)">r<sub>2</sub></th><th class="calc hidden s4-calc">Wirkung links</th><th class="calc hidden s4-calc">Wirkung rechts</th><th></th></tr></thead>
+            <tbody id="s4-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card hidden" id="s4-q"></div>
+    </div>
+  </div>
+  <div class="merke hidden" id="s4-def">
+    <h3>📖 Das Drehmoment M</h3>
+    <p>Du hast es selbst herausgefunden: Im Gleichgewicht ist das Produkt aus Kraft und Hebelarm auf beiden Seiten gleich groß.</p>
+    <span class="law">F<sub>1</sub> · r<sub>1</sub> = F<sub>2</sub> · r<sub>2</sub></span>
+    <p>Dieses Produkt heißt <b>Drehmoment M</b>. Es beschreibt, wie stark eine Kraft einen Körper um einen Drehpunkt drehen kann:</p>
+    <span class="law" style="color:var(--indigo)">M = F · r</span>
+    <p>Einheit: <b>Newtonmeter (N·m)</b> – in unseren Versuchen Newtonzentimeter (N·cm). 100 N·cm = 1 N·m.</p>
+    <p><b>Hebelgesetz:</b> Ein Hebel ist im Gleichgewicht, wenn das linksdrehende Drehmoment gleich dem rechtsdrehenden ist: <b>M<sub>links</sub> = M<sub>rechts</sub></b>.</p>
+  </div>
+  <div class="merke hidden" id="s4-merke">
+    <h3>✅ Station 4 geschafft!</h3>
+    <p>Das Hebelgesetz gilt für einseitige <i>und</i> zweiseitige Hebel. Im Alltags-Check wendest du es auf Werkzeuge, deinen Körper, Tiere und Maschinen an.</p>
+    <div class="next"><button class="btn" data-goto="tab5">Weiter zum Alltags-Check →</button></div>
+  </div>
+</section>
+
+<!-- ================= STATION 5 ================= -->
+<section class="station" id="tab5">
+  <div class="card intro">
+    <span class="badge">Station 5</span>
+    <div style="flex:1">
+      <h2>Physik im Alltag: Werkzeuge, Körper, Natur &amp; Technik</h2>
+      <p>Hebel und Federn stecken in vielen Dingen um dich herum. Wähle eine Aufgabe, sieh dir das 3D-Modell an (drehen &amp; zoomen erlaubt!) und löse sie. Bei Hebelaufgaben bestimmst du zuerst die Hebelart.</p>
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:12px;color:var(--ink2)"><span>Fortschritt</span><span id="s5-count">0 / 0 gelöst</span></div>
+      <div class="progress"><i id="s5-bar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="filters" id="s5-filters"></div>
+    <div class="tiles" id="s5-tiles"></div>
+  </div>
+
+  <div class="grid-sim wide">
+    <div class="card">
+      <div class="card-head">
+        <h3 id="s5-title3d">3D-Modell</h3>
+        <div class="legend"><span><i style="background:#ef4444"></i>Drehpunkt</span><span><i style="background:#3b82f6"></i>Kraft</span><span><i style="background:#f97316"></i>Last</span></div>
+      </div>
+      <div class="stage" id="stage5">
+        <div class="ov ov-tl"><span class="pill" id="s5-state">▶ Animation</span></div>
+        <div class="ov ov-tr"><button class="icon-btn" id="s5-play">⏸</button><button class="icon-btn" data-reset="5">↺</button></div>
+        <div class="ov ov-bl"><span class="hint3d">☝️ Drehen · 🤏 Zoomen</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" id="s5-task"></div>
+    </div>
+  </div>
+
+  <div class="congrats hidden" id="s5-congrats">
+    <h3>🎉 Fantastische Leistung!</h3>
+    <p>Du hast alle Stationen gemeistert: Federn, einseitige und zweiseitige Hebel, Drehmomente – und überall im Alltag erkennst du sie jetzt wieder. Du bist ein echter Hebel-Profi!</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Interaktives Physik-Lernportal · Stationenlernen Kraft &amp; Hebel · Klasse 8</p>
+  <p>Funktioniert offline – alle Inhalte stecken in dieser einen Datei. Fortschritt wird auf diesem Gerät gespeichert.</p>
+  <button id="reset-all">Fortschritt zurücksetzen</button>
+</footer>
+
+<script>
+/*__THREE__*/
+</script>
+<script>
+/*__APP__*/
+</script>
+</body>
+</html>
